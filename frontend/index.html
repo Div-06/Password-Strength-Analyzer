@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShieldPass | Advanced Password Strength Analyzer</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Google Fonts for premium typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="background-glow"></div>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shield-icon">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <h1>ShieldPass</h1>
+      </div>
+      <p class="subtitle">Secure, Real-time Cryptographic Password Strength & Reuse Analyzer</p>
+    </header>
+
+    <main class="main-card">
+      <!-- Password Input Section -->
+      <section class="input-section">
+        <label for="password-input" class="input-label">Enter Password</label>
+        <div class="input-wrapper">
+          <input 
+            type="password" 
+            id="password-input" 
+            placeholder="Type a password to analyze..." 
+            autocomplete="off" 
+            spellcheck="false"
+          >
+          <button type="button" id="toggle-password" class="toggle-btn" aria-label="Show password">
+            <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-svg">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- Strength Output Section -->
+      <section class="strength-meter-section">
+        <div class="meter-meta">
+          <span class="strength-label">Strength: <span id="strength-text" class="status-text text-very-weak">Empty</span></span>
+          <span class="score-badge"><span id="score-number">0</span>/100</span>
+        </div>
+        <div class="meter-bar-container">
+          <div id="meter-fill" class="meter-fill bar-very-weak" style="width: 0%"></div>
+        </div>
+      </section>
+
+      <!-- Cryptographic Hash Display (SHA-256) -->
+      <section class="hash-section">
+        <div class="hash-header">
+          <span class="section-title">SHA-256 Hash (Sent to database)</span>
+          <span id="hash-status" class="hash-status-badge">Not Generated</span>
+        </div>
+        <div class="hash-box">
+          <code id="hash-value">da39a3ee5e6b4b0d3255bfef95601890afd80709...</code>
+        </div>
+        <div class="security-note">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="info-icon">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+          <span>Only this one-way hash is sent to check and store in the database. Your plain-text password never leaves this application's memory.</span>
+        </div>
+      </section>
+
+      <!-- Two-column feedback layout -->
+      <div class="feedback-grid">
+        <!-- Checklist Column -->
+        <section class="checklist-card">
+          <h3>Requirements Checklist</h3>
+          <ul class="checklist-list" id="checklist">
+            <li id="rule-length" class="check-item invalid">
+              <span class="icon">✗</span>
+              <span class="text">At least 8 characters (12+ recommended)</span>
+            </li>
+            <li id="rule-uppercase" class="check-item invalid">
+              <span class="icon">✗</span>
+              <span class="text">Contains uppercase letter (A-Z)</span>
+            </li>
+            <li id="rule-lowercase" class="check-item invalid">
+              <span class="icon">✗</span>
+              <span class="text">Contains lowercase letter (a-z)</span>
+            </li>
+            <li id="rule-number" class="check-item invalid">
+              <span class="icon">✗</span>
+              <span class="text">Contains number (0-9)</span>
+            </li>
+            <li id="rule-special" class="check-item invalid">
+              <span class="icon">✗</span>
+              <span class="text">Contains special character (@, #, $, etc.)</span>
+            </li>
+            <li id="rule-repeated" class="check-item valid">
+              <span class="icon">✓</span>
+              <span class="text">No repeated patterns (consecutive or repeating sets)</span>
+            </li>
+            <li id="rule-common" class="check-item valid">
+              <span class="icon">✓</span>
+              <span class="text">Not a commonly used password</span>
+            </li>
+            <li id="rule-reuse" class="check-item valid">
+              <span class="icon">✓</span>
+              <span class="text">Not previously registered (Preventing Reuse)</span>
+            </li>
+          </ul>
+        </section>
+
+        <!-- Suggestions Column -->
+        <section class="suggestions-card">
+          <h3>Security Suggestions</h3>
+          <div id="suggestions-container">
+            <p class="empty-suggestions">Enter a password to see dynamic suggestions.</p>
+          </div>
+        </section>
+      </div>
+
+      <!-- Action Panel -->
+      <section class="action-panel">
+        <div class="action-desc">
+          <h4>Register Hashed Password</h4>
+          <p>Commit the hash of this password to the database. Once saved, this password hash will be locked and any future attempts to analyze the same password will flag a "Reuse Warning".</p>
+        </div>
+        <button id="save-btn" class="save-btn" disabled>Register Hash in Database</button>
+      </section>
+    </main>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <footer class="app-footer">
+      <p>&copy; 2026 ShieldPass. Built with premium Node.js and cryptographically secure hashes.</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
